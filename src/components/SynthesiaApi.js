@@ -1,12 +1,11 @@
-import { useEffect, useState } from "react"
-import axios from "axios"
-import { ClipLoader } from 'react-spinners'
-import { Button, Container, DownloadLink, DownloadSection, Form, Headline, Input, Label, ResetButton, SpinnerContainer, Textarea } from "./SynthesiaStyled"
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { ClipLoader } from 'react-spinners';
+import { Container, Headline, SpinnerContainer } from "./SynthesiaStyled";
+import SynthesiaForm from "./SynthesiaForm";
+import DownloadComponent from "./DownloadSection";
 
 const SynthesiaApi = () => {
-    const [title, setTitle] = useState('');
-    const [desc, setDesc] = useState('');
-    const [script, setScript] = useState('');
     const [videoId, setVideoId] = useState('');
     const [downloadUrl, setDownloadUrl] = useState('');
     const [loading, setLoading] = useState(false);
@@ -42,21 +41,10 @@ const SynthesiaApi = () => {
         }
     };
 
-    const truncateScript = (text) => {
-        if (text.length > 180) {
-            const newText = text.slice(0, 180);
-            return newText
-        }
-        return text;
-    };
-
-    const submitForm = async e => {
-        e.preventDefault();
+    const submitForm = async ({ title, desc, script }) => {
         setFormDisabled(true); // Disable form and submit button
         setLoading(true);
 
-        let truncStr = truncateScript(script);
-        
         const data = {
             test: 'false',
             visibility: 'private',
@@ -71,7 +59,7 @@ const SynthesiaApi = () => {
                             longBackgroundContentMatchMode: 'trim'
                         }
                     },
-                    scriptText: truncStr,
+                    scriptText: script.length > 180 ? script.slice(0, 180) : script,
                     avatar: 'anna_costume1_cameraA',
                     background: 'luxury_lobby'
                 }
@@ -101,37 +89,22 @@ const SynthesiaApi = () => {
     };
 
     const resetForm = () => {
-        setTitle('');
-        setDesc('');
-        setScript('');
         setVideoId('');
         setDownloadUrl('');
-        setFormDisabled(false); // Enable form and submit button
+        setFormDisabled(false);
     };
 
     return (
         <Container>
             <Headline>Synthesia Videos</Headline>
-            <Form onSubmit={submitForm}>
-                <Label htmlFor="title">Title</Label>
-                <Input type="text" id="title" value={title} onChange={e => setTitle(e.target.value)} disabled={formDisabled} />
-                <Label htmlFor="description">Description</Label>
-                <Input type="text" id="description" value={desc} onChange={e => setDesc(e.target.value)} disabled={formDisabled} />
-                <Label htmlFor="script">Script</Label>
-                <Textarea id="script" value={script} onChange={e => setScript(e.target.value)} disabled={formDisabled} />
-                <Button type="submit" disabled={formDisabled}>Submit</Button>
-            </Form>
+            <SynthesiaForm onSubmit={submitForm} formDisabled={formDisabled} />
             {loading && (
                 <SpinnerContainer>
                     <ClipLoader color="#007BFF" loading={loading} size={50} />
                 </SpinnerContainer>
             )}
             {downloadUrl && (
-                <DownloadSection>
-                    <h3>Download Your Video</h3>
-                    <DownloadLink href={downloadUrl} download>Download Video</DownloadLink>
-                    <ResetButton onClick={resetForm}>Reset Form</ResetButton>
-                </DownloadSection>
+                <DownloadComponent downloadUrl={downloadUrl} onReset={resetForm} />
             )}
         </Container>
     );
