@@ -63,6 +63,10 @@ const Button = styled.button`
     &:hover {
         background-color: #0056b3;
     }
+    &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
 `;
 
 const SpinnerContainer = styled.div`
